@@ -1,38 +1,9 @@
 import express from "express";
 import { db } from "./db.js";
 import { body, query } from "express-validator";
-import { validarId, verificarValidaciones } from "./validaciones.js";
+import { validarId, verificarValidaciones, validarMedico } from "./validaciones.js";
 const router = express.Router();
 
-
-// ------------Validaciones------------
-
-const validarMedico = [
-    body("nombre")
-        .isString().withMessage("El nombre debe ser una cadena de texto")
-        .not().isNumeric().withMessage("Debes ingresar solo letras")
-        .notEmpty().withMessage("El nombre es obligatorio")
-        .isLength({ min: 3, max: 50 }).withMessage("El nombre debe tener entre 3 y 50 caracteres"),
-
-
-    body("apellido")
-        .isString().withMessage("El apellido debe ser una cadena de texto")
-        .not().isNumeric().withMessage("Debes ingresar solo letras")
-        .notEmpty().withMessage("El apellido es obligatorio")
-        .isLength({ min: 3, max: 50 }).withMessage("El apellido debe tener entre 3 y 50 caracteres"),
-
-
-    body("especialidad")
-        .isString().withMessage("La especialdad debe ser una cadena de texto")
-        .not().isNumeric().withMessage("La especialidad no puede ser un número")
-        .notEmpty().withMessage("Campo obligatorio")
-        .isLength({ min: 3, max: 50 }).withMessage("La especialidad debe tener entre 3 y 50 caracteres"),
-
-    body("matricula")
-        .notEmpty().withMessage("Campo obligatorio")
-];
-
-// ------------Validaciones------------
 
 
 // ------------GET------------
@@ -55,7 +26,7 @@ router.get('/:id', validarId, verificarValidaciones, async (req, res) => {
     if (rows.length === 0) {
         return res
             .status(404)
-            .json({ success: false, message: "Usuario no encontrado" });
+            .json({ success: false, message: "Médico no encontrado" });
     }
 
     res.json({ success: true, data: rows[0] });
@@ -68,15 +39,6 @@ router.get('/:id', validarId, verificarValidaciones, async (req, res) => {
 // ------------POST------------ 
 router.post("/", validarMedico, verificarValidaciones, async (req, res) => {
     const { nombre, apellido, especialidad, matricula } = req.body;
-
-    const [existeMatricula] = await db.execute("SELECT * FROM medicos WHERE LOWER(matricula)=LOWER(?)", [matricula]);
-
-    if (existeMatricula.length > 0) {
-        return res.status(404).json({
-            success: false,
-            message: "Ya existe esta matricula",
-        });
-    }
 
     const [result] = await db.execute(
         "INSERT INTO medicos (nombre, apellido, especialidad, matricula) VALUES (?,?,?,?)",
@@ -102,15 +64,6 @@ router.put(
     async (req, res) => {
         const id = Number(req.params.id);
         const { nombre, apellido, especialidad, matricula } = req.body;
-
-        const [existeMatricula] = await db.execute("SELECT * FROM medicos WHERE LOWER(matricula)=LOWER(?)", [matricula]);
-
-        if (existeMatricula.length > 0) {
-            return res.status(404).json({
-                success: false,
-                message: "Ya existe esta matricula",
-            });
-        }
 
         await db.execute(
             "UPDATE medicos SET nombre=?, apellido=?, especialidad=?, matricula=?  WHERE id=?",

@@ -1,0 +1,58 @@
+### Variables
+@url = http://localhost:4000
+
+
+### Obtener todos los turnos
+GET {{url}}/turnos
+
+### Obtener un turno por ID
+GET {{url}}/turnos/1
+
+### Obtener turnos de un paciente específico
+GET {{url}}/turnos/pacientes/1/turnos
+
+### Obtener turnos de un médico específico
+GET {{url}}/turnos/medicos/1/turnos
+
+### Crear un nuevo turno
+
+POST {{url}}/turnos
+Content-Type: application/json
+
+{
+    "paciente_id": 3,
+    "medico_id": 1,
+    "fecha": "2025-12-24",
+    "hora": "10:30",
+    "estado": "pendiente",
+    "observaciones": "Control anual"
+}
+
+### Crear un turno con datos inválidos (para probar validaciones)
+POST {{url}}/turnos
+Content-Type: application/json
+
+{
+    "paciente_id": 999,
+    "medico_id": 1,
+    "fecha": "2020-01-01",
+    "hora": "99:99",
+    "estado": "cualquiercosa",
+    "observaciones": "Esto es una prueba de validación"
+}
+
+### Actualizar un turno 
+PUT {{url}}/turnos/1
+Content-Type: application/json
+
+{
+    "paciente_id": 1,
+    "medico_id": 1,
+    "fecha": "2025-12-24",
+    "hora": "10:30",
+    "estado": "confirmado",
+    "observaciones": "Control anual. Paciente confirmó asistencia."
+}
+
+### Eliminar un turno
+DELETE {{url}}/turnos/2

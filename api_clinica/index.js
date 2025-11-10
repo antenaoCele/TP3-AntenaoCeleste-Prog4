@@ -1,6 +1,8 @@
 import express from "express";
 import { conectarDB } from "./db.js";
 import medicosRouter from "./medicos.js";
+import pacientesRouter from "./pacientes.js";
+import turnosRouter from "./turnos.js";
 import cors from "cors";
 
 
@@ -20,6 +22,8 @@ app.get("/", (req, res) => {
 
 
 app.use("/medicos", medicosRouter);
+app.use("/pacientes", pacientesRouter);
+app.use("/turnos", turnosRouter);
 
 app.listen(port, () => {
     console.log(`La aplicación esta funcionando en el puerto ${port}`);

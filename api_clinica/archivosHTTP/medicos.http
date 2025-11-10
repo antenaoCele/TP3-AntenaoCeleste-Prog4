@@ -12,22 +12,22 @@ POST {{url}}/medicos
 Content-Type: application/json
 
 {
-    "nombre": "Juanas sa@",
-    "apellido": "hola1234",
-    "especialidad": "aaaaa",
+    "nombre": "Hola",
+    "apellido": "chau",
+    "especialidad": "Cirujana",
+    "matricula": "a134a2asdsadsadsadsads234a"
+}
+
+###PUT
+PUT {{url}}/medicos/6
+Content-Type: application/json
+
+{
+    "nombre": "Fernanda",
+    "apellido": "Antenao",
+    "especialidad": "Cirujana",
     "matricula": "a134a2as234sd5a"
 }
 
 ###PUT
-PUT {{url}}/medicos/5
-Content-Type: application/json
-
-{
-    "nombre": "Juan",
-    "apellido": "Pinto",
-    "especialidad": "cirujano",
-    "matricula": "123456788"
-}
-
-###PUT
-DELETE {{url}}/medicos/5
+DELETE {{url}}/medicos/7
