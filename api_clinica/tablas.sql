@@ -45,7 +45,7 @@ CREATE TABLE `turnos` (
 CREATE TABLE `usuarios` (
   `id` int NOT NULL AUTO_INCREMENT,
   `nombre` varchar(45) NOT NULL,
-  `password_hash` varchar(10) NOT NULL,
+  `password_hash` varchar(100) NOT NULL,
   `email` varchar(45) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `email_UNIQUE` (`email`)

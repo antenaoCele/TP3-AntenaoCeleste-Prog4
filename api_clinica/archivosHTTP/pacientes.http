@@ -12,9 +12,9 @@ POST {{url}}/pacientes
 Content-Type: application/json
 
 {
-    "nombre": "Juan",
-    "apellido": "Pinto",
-    "DNI": "45404259",
+    "nombre": "Fernanda",
+    "apellido": "Antenao",
+    "DNI": "45404258",
     "nacimiento": "2004-01-31",
     "obraSocial": "APOS"
 }

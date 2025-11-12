@@ -1,0 +1,34 @@
+@url=http://localhost:4000
+
+### Login
+# @name login
+POST {{url}}/auth/login
+Content-Type: application/json
+
+{
+    "nombre": "Maria",
+    "password": "Maria123"
+}
+
+###
+@token = {{login.response.body.token}}
+
+### Consultar usuarios
+GET {{url}}/usuarios
+Authorization: Bearer {{token}}
+
+### Consultar por un usuario
+GET {{url}}/usuarios/2
+
+
+### Crear usuario
+POST {{url}}/usuarios
+Content-Type: application/json
+
+{
+    "nombre":"Maria",
+    "email": "maria.fernandez@gmail.com",
+    "password": "Maria123"
+}
+
+

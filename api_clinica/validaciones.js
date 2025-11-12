@@ -6,6 +6,50 @@ import { db } from "./db.js";
 export const validarId = param("id").isInt({ min: 1 });
 
 
+//-------------------------VALIDACION PARA AUTH-------------------------
+export const validarAuth = [
+    body("nombre")
+        .isAlphanumeric("es-ES").isLength({ max: 20 }),
+    body("password")
+        .isStrongPassword({
+            minLength: 8,
+            minLowercase: 1,
+            minUppercase: 1,
+            minNumbers: 1,
+            minSymbols: 0
+        }).withMessage("La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula y un número.")
+
+]
+//----------------------------------------------------------------------
+
+
+//-------------------------VALIDACION PARA USUARIOS-------------------------
+export const validarUsuario = [
+    body("nombre")
+        .trim()
+        .notEmpty().withMessage("El nombre es obligatorio.")
+        .isLength({ max: 50 }).withMessage("El nombre debe tener menos de 50 caracteres."),
+    body("email")
+        .trim()
+        .notEmpty().withMessage("El email es obligatorio.")
+        .isEmail().withMessage("Debe ser un email válido."),
+    body("password")
+        .notEmpty().withMessage("La contraseña es obligatoria.")
+        .isStrongPassword({
+            minLength: 8,
+            minLowercase: 1,
+            minUppercase: 1,
+            minNumbers: 1,
+            minSymbols: 0
+        })
+
+]
+//----------------------------------------------------------------------
+
+
+
+
+
 //---------------------VALIDACION PARA MEDICOS--------------------------
 export const validarMedico = [
     body("nombre")
