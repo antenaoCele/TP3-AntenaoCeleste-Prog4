@@ -6,8 +6,8 @@ POST {{url}}/auth/login
 Content-Type: application/json
 
 {
-    "nombre": "Maria",
-    "password": "Maria123"
+    "nombre": "Celeste",
+    "password": "Celes123"
 }
 
 ###
@@ -18,7 +18,7 @@ GET {{url}}/usuarios
 Authorization: Bearer {{token}}
 
 ### Consultar por un usuario
-GET {{url}}/usuarios/2
+GET {{url}}/usuarios/1
 
 
 ### Crear usuario
@@ -26,9 +26,13 @@ POST {{url}}/usuarios
 Content-Type: application/json
 
 {
-    "nombre":"Maria",
-    "email": "maria.fernandez@gmail.com",
-    "password": "Maria123"
+    "nombre":"Celeste",
+    "email": "cele.antenao@gmail.com",
+    "password": "Celes123"
 }
+
+### Eliminar usuario 
+DELETE {{url}}/usuarios/1
+Authorization: Bearer {{token}}
 
 

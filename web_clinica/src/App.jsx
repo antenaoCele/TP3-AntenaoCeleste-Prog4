@@ -1,35 +1,46 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState } from "react";
+import { Usuarios } from "./Usuarios.jsx";
+import { useAuth } from "./Auth.jsx"
 
-function App() {
-  const [count, setCount] = useState(0)
+export default function App() {
+  const { token, error, login, logout } = useAuth();
+  const [nombre, setNombre] = useState("");
+  const [password, setPassword] = useState("");
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    login(nombre, password)
+  };
 
   return (
     <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      <h1>LOGIN</h1>
+      {!token && (
+        <form onSubmit={handleSubmit}>
+          <label htmlFor="nombre">Usuario:</label>
+          <input
+            name="nombre"
+            value={nombre}
+            onChange={(e) => setNombre(e.target.value)}
+          />
+          <label htmlFor="password">Contraseña:</label>
+          <input
+            name="password"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          {error && <p style={{ color: "red" }}>{error}</p>}
+          <button type="submit">Ingresar</button>
+        </form>
+      )}
+      {token && (
+        <>
+          <h2>Usuarios</h2>
+          <button onClick={() => logout()}>Salir</button>
+          <Usuarios token={token} />
+        </>
+      )}
     </>
-  )
+  );
 }
-
-export default App

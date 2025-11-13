@@ -58,7 +58,15 @@ router.post(
 );
 
 router.put("/:id", (req, res) => { });
-router.delete("/:id", (req, res) => { });
+router.delete("/:id", validarId, verificarValidaciones,
+    passport.authenticate("jwt", { session: false }),
+    async (req, res) => {
+        const { id } = req.params;
+
+        await db.execute("DELETE FROM usuarios WHERE id=?", [id]);
+
+        res.json({ success: true, message: "Usuario eliminado" });
+    });
 
 
 export default router;
