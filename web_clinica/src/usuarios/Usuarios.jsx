@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useAuth } from "./Auth";
+import { useAuth } from "../Auth";
 import { Link } from "react-router-dom";
 
 export function Usuarios() {
@@ -32,9 +32,10 @@ export function Usuarios() {
                 <tbody>
                     {usuarios.map((u) => (
                         <tr key={u.id}>
-                            <td><Link to={`/usuarios/${u.id}`}>{u.nombre}</Link></td>
+                            <td>{u.nombre}</td>
                             <td>{u.email}</td>
                             <td><Link to={`/usuarios/${u.id}/modificar`} role="button" className="secondary">Modificar</Link></td>
+                            <td><Link to={`/usuarios/${u.id}`} role="button" className="secondary">Ver</Link></td>
                         </tr>
                     ))}
                 </tbody>

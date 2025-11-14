@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { useAuth } from "./Auth";
+import { useAuth } from "../Auth";
 import { useParams } from "react-router";
 
 

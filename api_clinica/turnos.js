@@ -47,10 +47,29 @@ router.get('/medicos/:id/turnos', validarId, verificarValidaciones, async (req, 
 //get por id 
 router.get('/:id', validarId, verificarValidaciones, async (req, res) => {
     const { id } = req.params;
-    const [rows] = await db.execute("SELECT * FROM turnos WHERE id = ?", [id]);
+
+    const sql = `
+        SELECT 
+            t.id, t.fecha, t.hora, t.estado, t.observaciones,
+            p.id AS paciente_id, 
+            p.nombre AS paciente_nombre, 
+            p.apellido AS paciente_apellido,
+            m.id AS medico_id, 
+            m.nombre AS medico_nombre, 
+            m.apellido AS medico_apellido,
+            m.especialidad
+        FROM turnos t
+        JOIN pacientes p ON t.paciente_id = p.id
+        JOIN medicos m ON t.medico_id = m.id
+        WHERE t.id = ?
+    `;
+
+    const [rows] = await db.execute(sql, [id]);
+
     if (rows.length === 0) {
         return res.status(404).json({ success: false, message: "Turno no encontrado" });
     }
+
     res.json({ success: true, data: rows[0] });
 });
 
@@ -83,6 +102,11 @@ router.put(
     async (req, res) => {
         const { id } = req.params;
         const { paciente_id, medico_id, fecha, hora, estado, observaciones } = req.body;
+
+        const [existe] = await db.execute(
+            "SELECT * FROM turnos WHERE medico_id = ? AND fecha = ? AND hora = ? AND id <> ?",
+            [medico_id, fecha, value, id]
+        );
 
         await db.execute(
             "UPDATE turnos SET paciente_id=?, medico_id=?, fecha=?, hora=?, estado=?, observaciones=? WHERE id=?",

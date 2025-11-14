@@ -166,6 +166,7 @@ export const validarTurnos = [
             }
             return true;
         }),
+
     body("medico_id")
         .isInt({ min: 1 }).withMessage("El ID del médico debe ser un número entero positivo.")
         .custom(async (value) => {
@@ -175,6 +176,7 @@ export const validarTurnos = [
             }
             return true;
         }),
+
     body("fecha")
         .notEmpty().withMessage("La fecha es obligatoria.")
         .isISO8601().withMessage("La fecha debe tener un formato válido (YYYY-MM-DD).")
@@ -187,17 +189,20 @@ export const validarTurnos = [
             }
             return true;
         }),
+
     body("hora")
         .notEmpty().withMessage("La hora es obligatoria.")
         .matches(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/).withMessage("La hora debe tener un formato válido (HH:MM).")
         .custom(async (value, { req }) => {
             const { medico_id, fecha } = req.body;
+            const turnoId = req.params.id; // <<--- IMPORTANTE
 
             if (!medico_id || !fecha) return true;
 
+            // Ignorar el turno actual en la validación
             const [existe] = await db.execute(
-                "SELECT * FROM turnos WHERE medico_id = ? AND fecha = ? AND hora = ?",
-                [medico_id, fecha, value]
+                "SELECT * FROM turnos WHERE medico_id = ? AND fecha = ? AND hora = ? AND id != ?",
+                [medico_id, fecha, value, turnoId]
             );
 
             if (existe.length > 0) {
@@ -206,13 +211,17 @@ export const validarTurnos = [
 
             return true;
         }),
+
     body("estado")
         .isString().withMessage("El estado debe ser una cadena de texto.")
-        .isIn(['pendiente', 'atendido', 'cancelado']).withMessage("El estado debe ser: 'pendiente', 'atendido' o 'cancelado'."),
+        .isIn(["pendiente", "atendido", "cancelado"]).withMessage("El estado debe ser: 'pendiente', 'atendido' o 'cancelado'."),
+
     body("observaciones")
+        .optional()
         .isString().withMessage("Las observaciones deben ser una cadena de texto.")
-        .isLength({ max: 200 }).withMessage("Coloca un texto de 200 caracteres como máximo.")
+        .isLength({ max: 200 }).withMessage("Máximo 200 caracteres.")
 ];
+
 //-----------------------------------------------------------------------
 
 

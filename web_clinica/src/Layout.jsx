@@ -15,6 +15,15 @@ export const Layout = () => {
                     <li>
                         <Link to="/usuarios">Usuarios</Link>
                     </li>
+                    <li>
+                        <Link to="/pacientes">Pacientes</Link>
+                    </li>
+                    <li>
+                        <Link to="/medicos">Médicos</Link>
+                    </li>
+                    <li>
+                        <Link to="/turnos">Turnos</Link>
+                    </li>
                 </ul>
                 <li>
                     {isAuthenticated ? (
