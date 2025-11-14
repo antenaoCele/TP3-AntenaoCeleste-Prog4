@@ -35,4 +35,15 @@ Content-Type: application/json
 DELETE {{url}}/usuarios/1
 Authorization: Bearer {{token}}
 
+### Modificar usuario 
+PUT {{url}}/usuarios/3
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+    "nombre":"Celeste",
+    "email": "celee.antenao@gmail.com",
+    "password": "Celes123"
+}
+
 

@@ -9,7 +9,7 @@ export const validarId = param("id").isInt({ min: 1 });
 //-------------------------VALIDACION PARA AUTH-------------------------
 export const validarAuth = [
     body("nombre")
-        .isAlphanumeric("es-ES").isLength({ max: 20 }),
+        .isAlphanumeric("es-ES").withMessage("El nombre de usuario solo puede contener letras y números.").isLength({ max: 20 }).withMessage("El nombre de usuario debe tener menos de 20 caracteres."),
     body("password")
         .isStrongPassword({
             minLength: 8,

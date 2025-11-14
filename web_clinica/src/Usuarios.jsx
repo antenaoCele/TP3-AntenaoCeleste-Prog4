@@ -1,34 +1,45 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "./Auth";
+import { Link } from "react-router-dom";
 
 export function Usuarios() {
-    const { fecthAuth } = useAuth();
+    const { fetchAuth } = useAuth();
     const [usuarios, setUsuarios] = useState([]);
 
 
     useEffect(() => {
         const fetchUsuarios = async () => {
-            const response = await fecthAuth("http://localhost:4000/usuarios")
+            const response = await fetchAuth("http://localhost:4000/usuarios")
             const data = await response.json();
             if (!response.ok) {
                 console.log("Error:", data.error);
                 return;
             }
 
-            return data.usuarios;
-
+            setUsuarios(data.usuarios);
         }
 
-        fetchUsuarios().then((usuarios) => setUsuarios(usuarios));
-    }, [fecthAuth]);
+        fetchUsuarios();
+    }, [fetchAuth]);
 
     return (
-        <ol>
-            {usuarios.map((u) => (
-                <li key={u.id}>
-                    {u.nombre}, correo: {u.nombre}, {u.email}
-                </li>
-            ))}
-        </ol>
+        <article>
+            <h2>Usuarios</h2>
+            <table>
+                <thead>
+                    <tr><th>Nombre</th><th>Email</th><th>Acciones</th></tr>
+                </thead>
+                <tbody>
+                    {usuarios.map((u) => (
+                        <tr key={u.id}>
+                            <td><Link to={`/usuarios/${u.id}`}>{u.nombre}</Link></td>
+                            <td>{u.email}</td>
+                            <td><Link to={`/usuarios/${u.id}/modificar`} role="button" className="secondary">Modificar</Link></td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+            <Link to="/usuarios/crear" role="button">Crear nuevo usuario</Link>
+        </article>
     );
 }

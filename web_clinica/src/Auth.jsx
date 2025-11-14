@@ -23,15 +23,23 @@ export const AuthProvider = ({ children }) => {
             });
 
             const session = await response.json();
-            if (!response.ok && response.status === 401) {
-                throw new Error(session.error);
+            if (!response.ok) {
+                let errorMessage = "Ocurrió un error inesperado.";
+                if (response.status === 401 && session.error) {
+                    errorMessage = session.error;
+                } else if (response.status === 400 && session.errores && session.errores.length > 0) {
+                    errorMessage = session.errores.map(err => err.msg).join(", ");
+                } else if (session.message) {
+                    errorMessage = session.message;
+                }
+                throw new Error(errorMessage);
             }
 
             setToken(session.token);
-            return { sucess: true }
+            return { success: true };
         } catch (error) {
             setError(error.message);
-            return { sucess: false, error: error.message }
+            return { success: false, error: error.message };
         }
     }
 
@@ -40,9 +48,9 @@ export const AuthProvider = ({ children }) => {
         setError(null)
     }
 
-    const fecthAuth = async (url, options = {}) => {
+    const fetchAuth = async (url, options = {}) => {
         if (!token) {
-            throw new Error("No hay token");
+            throw new Error("Debes iniciar sesion");
         }
 
         return fetch(url, {
@@ -55,9 +63,19 @@ export const AuthProvider = ({ children }) => {
 
 
     return (
-        <AuthContext.Provider value={{ token, error, login, logout, fecthAuth }}>
+        <AuthContext.Provider value={{ token, error, login, logout, fetchAuth, isAuthenticated: !!token, setError }}>
             {children}
         </AuthContext.Provider>
     )
 
 }
+
+export const AuthPage = ({ children }) => {
+    const { isAuthenticated } = useAuth();
+
+    if (!isAuthenticated) {
+        return <h2>Ingrese para ver esta pagina</h2>;
+    }
+
+    return children;
+};
