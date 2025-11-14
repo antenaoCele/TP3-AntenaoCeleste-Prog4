@@ -2,6 +2,20 @@
 @url = http://localhost:4000
 
 
+### Login
+# @name login
+POST {{url}}/auth/login
+Content-Type: application/json
+
+{
+    "nombre": "Celeste",
+    "password": "Celes123"
+}
+
+###
+@token = {{login.response.body.token}}
+
+
 ### Obtener todos los turnos
 GET {{url}}/turnos
 

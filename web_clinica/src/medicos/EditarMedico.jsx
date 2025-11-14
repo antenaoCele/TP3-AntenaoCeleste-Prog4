@@ -16,7 +16,7 @@ export function EditarMedico() {
         const data = await response.json();
 
         if (!response.ok || !data.success) {
-            console.log("Error:", data.error);
+            console.log("Error:", data.message);
             return;
         }
 
@@ -40,7 +40,7 @@ export function EditarMedico() {
         const data = await response.json();
 
         if (!response.ok) {
-            setErrores(data.errores || [{ msg: data.error }]);
+            setErrores(data.errores || [{ msg: data.message }]);
             return;
         }
 

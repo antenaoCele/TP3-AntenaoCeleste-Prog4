@@ -195,11 +195,10 @@ export const validarTurnos = [
         .matches(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/).withMessage("La hora debe tener un formato válido (HH:MM).")
         .custom(async (value, { req }) => {
             const { medico_id, fecha } = req.body;
-            const turnoId = req.params.id; // <<--- IMPORTANTE
+            const turnoId = req.params.id;
 
             if (!medico_id || !fecha) return true;
 
-            // Ignorar el turno actual en la validación
             const [existe] = await db.execute(
                 "SELECT * FROM turnos WHERE medico_id = ? AND fecha = ? AND hora = ? AND id != ?",
                 [medico_id, fecha, value, turnoId]

@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useAuth } from "../Auth";
 import { useNavigate, useParams } from "react-router";
 
-export const ModificarUsuario = () => {
+export const ModificarUsuarios = () => {
     const { fetchAuth } = useAuth();
     const { id } = useParams();
     const navigate = useNavigate();
@@ -87,10 +87,9 @@ export const ModificarUsuario = () => {
                         />
                     </label>
                     <label>
-                        Nueva Contraseña (opcional)
+                        Nueva Contraseña
                         <input
                             type="password"
-                            placeholder="Dejar en blanco para no cambiar"
                             onChange={(e) =>
                                 setValues({ ...values, password: e.target.value })
                             }

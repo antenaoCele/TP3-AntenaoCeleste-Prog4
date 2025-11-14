@@ -6,7 +6,7 @@ import { Layout } from './Layout.jsx'
 import { Usuarios } from './usuarios/Usuarios.jsx'
 import { DetallesUsuarios } from "./usuarios/DetallesUsuario.jsx";
 import { CrearUsuario } from "./usuarios/CrearUsuario.jsx";
-import { ModificarUsuario } from "./usuarios/ModificarUsuarios.jsx";
+import { ModificarUsuarios } from "./usuarios/ModificarUsuarios.jsx";
 import { CrearPaciente } from "./pacientes/CrearPaciente.jsx";
 import { DetallesPaciente } from "./pacientes/DetallesPaciente.jsx";
 import { EditarPaciente } from "./pacientes/EditarPaciente.jsx";
@@ -55,7 +55,7 @@ createRoot(document.getElementById('root')).render(
               path="usuarios/:id/modificar"
               element={
                 <AuthPage>
-                  <ModificarUsuario />
+                  <ModificarUsuarios />
                 </AuthPage>
               }
             />

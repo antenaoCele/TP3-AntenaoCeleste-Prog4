@@ -18,12 +18,14 @@ GET {{url}}/usuarios
 Authorization: Bearer {{token}}
 
 ### Consultar por un usuario
-GET {{url}}/usuarios/1
+GET {{url}}/usuarios/10
+Authorization: Bearer {{token}}
 
 
 ### Crear usuario
 POST {{url}}/usuarios
 Content-Type: application/json
+Authorization: Bearer {{token}}
 
 {
     "nombre":"Celeste",

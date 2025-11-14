@@ -22,6 +22,23 @@ export function Usuarios() {
         fetchUsuarios();
     }, [fetchAuth]);
 
+    const handleEliminar = async (id) => {
+        if (!window.confirm("¿Estás seguro de que quieres eliminar este usuario?")) return;
+
+        const response = await fetchAuth(`http://localhost:4000/usuarios/${id}`, {
+            method: "DELETE",
+        });
+
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+            console.log("Error al eliminar:", data.message || data.error);
+            return;
+        }
+
+        setUsuarios(usuarios.filter((u) => u.id !== id));
+    };
+
     return (
         <article>
             <h2>Usuarios</h2>
@@ -36,6 +53,12 @@ export function Usuarios() {
                             <td>{u.email}</td>
                             <td><Link to={`/usuarios/${u.id}/modificar`} role="button" className="secondary">Modificar</Link></td>
                             <td><Link to={`/usuarios/${u.id}`} role="button" className="secondary">Ver</Link></td>
+                            <button
+                                onClick={() => handleEliminar(u.id)}
+                                className="secondary"
+                            >
+                                Eliminar
+                            </button>
                         </tr>
                     ))}
                 </tbody>

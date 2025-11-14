@@ -29,7 +29,7 @@ export function CrearMedico() {
         const data = await response.json();
 
         if (!response.ok) {
-            setErrores(data.errores || [{ msg: data.error }]);
+            setErrores(data.errores || [{ msg: data.message }]);
             return;
         }
 

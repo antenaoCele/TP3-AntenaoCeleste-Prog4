@@ -14,7 +14,7 @@ export const Medicos = () => {
             const data = await response.json();
 
             if (!response.ok || !data.success) {
-                console.log("Error al obtener médicos:", data.error || data.message);
+                console.log("Error al obtener médicos:", data.message);
                 setMedicos([]);
                 return;
             }
@@ -25,6 +25,22 @@ export const Medicos = () => {
         fetchMedicos();
     }, [fetchAuth]);
 
+    const handleEliminar = async (id) => {
+        if (!window.confirm("¿Estás seguro de que quieres eliminar este medico?")) return;
+
+        const response = await fetchAuth(`http://localhost:4000/medicos/${id}`, {
+            method: "DELETE",
+        });
+
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+            console.log("Error al eliminar:", data.message);
+            return;
+        }
+
+        setMedicos(medicos.filter((m) => m.id !== id));
+    };
 
     return (
         <article>
@@ -53,6 +69,13 @@ export const Medicos = () => {
                                 <td>
                                     <Link to={`/medicos/${m.id}`} role="button" className="secondary">Ver</Link>{" "}
                                     <Link to={`/medicos/editar/${m.id}`} role="button" className="secondary">Modificar</Link>
+                                    {" "}
+                                    <button
+                                        onClick={() => handleEliminar(m.id)}
+                                        className="secondary"
+                                    >
+                                        Eliminar
+                                    </button>
                                 </td>
                             </tr>
                         ))}

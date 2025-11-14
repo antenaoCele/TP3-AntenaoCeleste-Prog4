@@ -103,11 +103,6 @@ router.put(
         const { id } = req.params;
         const { paciente_id, medico_id, fecha, hora, estado, observaciones } = req.body;
 
-        const [existe] = await db.execute(
-            "SELECT * FROM turnos WHERE medico_id = ? AND fecha = ? AND hora = ? AND id <> ?",
-            [medico_id, fecha, value, id]
-        );
-
         await db.execute(
             "UPDATE turnos SET paciente_id=?, medico_id=?, fecha=?, hora=?, estado=?, observaciones=? WHERE id=?",
             [paciente_id, medico_id, fecha, hora, estado, observaciones, id]

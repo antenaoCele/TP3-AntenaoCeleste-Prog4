@@ -22,6 +22,23 @@ export const Pacientes = () => {
         fetchPacientes();
     }, [fetchAuth]);
 
+    const handleEliminar = async (id) => {
+        if (!window.confirm("¿Estás seguro de que quieres eliminar este paciente?")) return;
+
+        const response = await fetchAuth(`http://localhost:4000/pacientes/${id}`, {
+            method: "DELETE",
+        });
+
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+            console.log("Error al eliminar:", data.error);
+            return;
+        }
+
+        setPacientes(pacientes.filter((p) => p.id !== id));
+    };
+
     return (
         <article>
             <h2>Pacientes</h2>
@@ -56,7 +73,13 @@ export const Pacientes = () => {
                                     className="secondary"
                                 >
                                     Modificar
-                                </Link>
+                                </Link>{" "}
+                                <button
+                                    onClick={() => handleEliminar(p.id)}
+                                    className="secondary"
+                                >
+                                    Eliminar
+                                </button>
 
                             </td>
                         </tr>

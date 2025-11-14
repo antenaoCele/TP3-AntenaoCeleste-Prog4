@@ -6,10 +6,10 @@ import bcrypt from "bcrypt";
 import passport from "passport";
 
 const router = express.Router();
+router.use(passport.authenticate("jwt", { session: false }));
 
 router.get(
     "/",
-    passport.authenticate("jwt", { session: false }),
     async (req, res) => {
 
         const [rows] = await db.execute("SELECT * FROM usuarios");
@@ -22,6 +22,14 @@ router.get(
 
 router.get("/:id", validarId, verificarValidaciones, async (req, res) => {
     const id = Number(req.params.id);
+
+    const [existe] = await db.execute("SELECT * FROM usuarios WHERE id=?", [id]);
+
+    if (existe.length === 0) {
+        return res.status(404).json({ success: false, error: "Usuario no encontrado" });
+    }
+
+
     const [rows] = await db.execute(
         "SELECT id, nombre, email FROM usuarios WHERE id=?",
         [id]
@@ -59,9 +67,7 @@ router.post(
 
 router.put("/:id",
     validarId,
-    body("nombre").optional().trim().notEmpty().withMessage("El nombre es obligatorio.").isLength({ max: 50 }).withMessage("El nombre debe tener menos de 50 caracteres."),
-    body("email").optional().trim().notEmpty().withMessage("El email es obligatorio.").isEmail().withMessage("Debe ser un email válido."),
-    body("password").optional().notEmpty().withMessage("La contraseña es obligatoria.").isStrongPassword({ minLength: 8, minLowercase: 1, minUppercase: 1, minNumbers: 1, minSymbols: 0 }).withMessage("La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula y un número."),
+    validarUsuario,
     verificarValidaciones,
     passport.authenticate("jwt", { session: false }),
     async (req, res) => {
@@ -74,19 +80,16 @@ router.put("/:id",
             return res.status(404).json({ success: false, error: "Usuario no encontrado" });
         }
 
-        const usuario = rows[0];
-        const newNombre = nombre || usuario.nombre;
-        const newEmail = email || usuario.email;
         const hashedPassword = password ? await bcrypt.hash(password, 12) : usuario.password_hash;
 
         await db.execute(
             "UPDATE usuarios SET nombre=?, password_hash=?, email=? WHERE id=?",
-            [newNombre, hashedPassword, newEmail, id]
+            [nombre, hashedPassword, email, id]
         );
 
         return res.status(200).json({
-            success: true, // Corregido para devolver los datos actualizados
-            data: { id: Number(id), nombre: newNombre, email: newEmail },
+            success: true,
+            data: { id: Number(id), nombre, email },
         });
 
     });
@@ -96,6 +99,12 @@ router.delete("/:id", validarId, verificarValidaciones,
     passport.authenticate("jwt", { session: false }),
     async (req, res) => {
         const { id } = req.params;
+
+        const [rows] = await db.execute("SELECT * FROM usuarios WHERE id=?", [id]);
+
+        if (rows.length === 0) {
+            return res.status(404).json({ success: false, error: "Usuario no encontrado" });
+        }
 
         await db.execute("DELETE FROM usuarios WHERE id=?", [id]);
 

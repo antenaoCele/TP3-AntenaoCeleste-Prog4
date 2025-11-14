@@ -32,8 +32,8 @@ export const DetallesPaciente = () => {
 
             <p><b>Nombre:</b> {paciente.nombre} {paciente.apellido}</p>
             <p><b>DNI:</b> {paciente.DNI}</p>
-            <p><b>Fecha de nacimiento:</b> {paciente.fecha_nacimiento}</p>
-            <p><b>Obra Social:</b> {paciente.obra_social}</p>
+            <p><b>Fecha de nacimiento:</b> {paciente.nacimiento}</p>
+            <p><b>Obra Social:</b> {paciente.obraSocial}</p>
         </article>
     );
 };
