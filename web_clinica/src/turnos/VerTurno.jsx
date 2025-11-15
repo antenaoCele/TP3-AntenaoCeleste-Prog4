@@ -57,7 +57,7 @@ export const VerTurno = () => {
 
             <p><b>Paciente:</b> {turno.paciente_nombre} {turno.paciente_apellido}</p>
             <p><b>Médico:</b> {turno.medico_nombre} {turno.medico_apellido}</p>
-            <p><b>Fecha:</b> {turno.fecha}</p>
+            <p><b>Fecha:</b> {turno.fecha?.slice(0, 10)}</p>
             <p><b>Hora:</b> {turno.hora}</p>
             <p><b>Estado:</b> {turno.estado}</p>
             <p><b>Observaciones:</b> {turno.observaciones}</p>

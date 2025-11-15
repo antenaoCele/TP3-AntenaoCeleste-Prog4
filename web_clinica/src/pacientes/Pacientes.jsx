@@ -79,7 +79,15 @@ export const Pacientes = () => {
                                     className="secondary"
                                 >
                                     Eliminar
-                                </button>
+                                </button>{" "}
+                                <Link
+                                    to={`/pacientes/${p.id}/turnos`}
+                                    role="button"
+                                    className="secondary"
+                                >
+                                    Ver Turnos
+                                </Link>
+
 
                             </td>
                         </tr>

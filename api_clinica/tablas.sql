@@ -29,7 +29,7 @@ CREATE TABLE `turnos` (
   `paciente_id` int NOT NULL,
   `medico_id` int NOT NULL,
   `fecha` date NOT NULL,
-  `hora` time NOT NULL,
+  `hora` text NOT NULL,
   `estado` varchar(10) NOT NULL,
   `observaciones` varchar(100) NOT NULL,
   PRIMARY KEY (`id`),
@@ -38,7 +38,7 @@ CREATE TABLE `turnos` (
   KEY `fk_turnos_pacientes_idx` (`paciente_id`),
   CONSTRAINT `fk_turnos_medicos` FOREIGN KEY (`medico_id`) REFERENCES `medicos` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT `fk_turnos_pacientes` FOREIGN KEY (`paciente_id`) REFERENCES `pacientes` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci 
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
 
 
 /*USUARIOS*/

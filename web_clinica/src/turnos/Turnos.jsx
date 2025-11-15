@@ -24,13 +24,26 @@ export const Turnos = () => {
         fetchTurnos();
     }, [fetchAuth]);
 
+    const handleEliminar = async (id) => {
+        if (!window.confirm("¿Estás seguro de que quieres eliminar este paciente?")) return;
+
+        const response = await fetchAuth(`http://localhost:4000/turnos/${id}`, {
+            method: "DELETE",
+        });
+
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+            console.log("Error al eliminar:", data.error);
+            return;
+        }
+
+        setTurnos(turnos.filter((t) => t.id !== id));
+    };
+
     return (
         <article>
             <h2>Turnos</h2>
-
-            <Link to="/turnos/crear" role="button">
-                Crear Turno
-            </Link>
 
             {turnos.length === 0 ? (
                 <p>No hay turnos cargados.</p>
@@ -56,22 +69,38 @@ export const Turnos = () => {
                                 <td>
                                     {t.medico_nombre} {t.medico_apellido} ({t.especialidad})
                                 </td>
-                                <td>{t.fecha}</td>
+                                <td>{t.fecha?.slice(0, 10)}</td>
                                 <td>{t.hora}</td>
                                 <td>{t.estado}</td>
                                 <td>
-                                    <Link to={`/turnos/${t.id}`} className="secondary">
+                                    <Link
+                                        to={`/turnos/${t.id}`}
+                                        role="button"
+                                        className="secondary">
                                         Ver
                                     </Link>{" "}
-                                    <Link to={`/turnos/editar/${t.id}`} className="secondary">
+                                    <Link
+                                        to={`/turnos/editar/${t.id}`}
+                                        role="button"
+                                        className="secondary">
                                         Editar
-                                    </Link>
+                                    </Link> {' '}
+                                    <button
+                                        onClick={() => handleEliminar(t.id)}
+                                        className="secondary"
+                                    >
+                                        Eliminar
+                                    </button>
                                 </td>
                             </tr>
                         ))}
                     </tbody>
                 </table>
+
             )}
+            <Link to="/turnos/crear" role="button">
+                Crear Turno
+            </Link>
         </article>
     );
 };

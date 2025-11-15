@@ -1,12 +1,17 @@
-import { useEffect, useState, useCallback } from "react";
-import { useAuth } from "../Auth";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../Auth";
 
 export const CrearTurno = () => {
     const { fetchAuth } = useAuth();
     const navigate = useNavigate();
 
-    const [values, setValues] = useState({
+    const [pacientes, setPacientes] = useState([]);
+    const [medicos, setMedicos] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [errores, setErrores] = useState([]);
+
+    const [form, setForm] = useState({
         paciente_id: "",
         medico_id: "",
         fecha: "",
@@ -15,173 +20,153 @@ export const CrearTurno = () => {
         observaciones: ""
     });
 
-    const [pacientes, setPacientes] = useState([]);
-    const [medicos, setMedicos] = useState([]);
-    const [errores, setErrores] = useState(null);
-
-
-    const fetchPacientes = useCallback(async () => {
-        const response = await fetchAuth("http://localhost:4000/pacientes");
-        const data = await response.json();
-
-        if (!response.ok || !data.success) {
-            console.log("Error al cargar pacientes");
-            return;
-        }
-        setPacientes(data.data);
-    }, [fetchAuth]);
-
-
-    const fetchMedicos = useCallback(async () => {
-        const response = await fetchAuth("http://localhost:4000/medicos");
-        const data = await response.json();
-
-        if (!response.ok || !data.success) {
-            console.log("Error al cargar médicos");
-            return;
-        }
-        setMedicos(data.data);
-    }, [fetchAuth]);
-
     useEffect(() => {
-        fetchPacientes();
-        fetchMedicos();
-    }, [fetchPacientes, fetchMedicos]);
+        const fetchData = async () => {
+            try {
+                const [resPac, resMed] = await Promise.all([
+                    fetchAuth("http://localhost:4000/pacientes"),
+                    fetchAuth("http://localhost:4000/medicos")
+                ]);
 
+                const pacData = await resPac.json();
+                const medData = await resMed.json();
+
+                if (pacData.success) setPacientes(pacData.data);
+                if (medData.success) setMedicos(medData.data);
+            } catch (err) {
+                console.log("Error al obtener pacientes/medicos:", err);
+            }
+        };
+
+        fetchData();
+    }, [fetchAuth]);
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setForm((prev) => ({ ...prev, [name]: value }));
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setErrores(null);
 
-        const response = await fetchAuth("http://localhost:4000/turnos", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(values),
-        });
+        setErrores([]);
 
-        const data = await response.json();
+        setLoading(true);
+        try {
+            const body = {
+                paciente_id: Number(form.paciente_id),
+                medico_id: Number(form.medico_id),
+                fecha: form.fecha,
+                hora: form.hora,
+                estado: form.estado,
+                observaciones: form.observaciones ? String(form.observaciones) : ""
+            };
 
-        if (!response.ok || !data.success) {
-            setErrores(data.errores || [{ msg: data.message || "Error desconocido" }]);
-            return;
+            const response = await fetchAuth("http://localhost:4000/turnos", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(body),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                if (data.errores) {
+                    setErrores(data.errores.map(e => e.msg));
+                } else {
+                    setErrores([data.message || data.error || "Error al crear turno"]);
+                }
+                setLoading(false);
+                return;
+            }
+
+            navigate("/turnos");
+        } catch (err) {
+            console.log(err);
+            alert("Error de red al crear turno.");
+            setLoading(false);
         }
-
-        navigate("/turnos");
     };
 
     return (
         <article>
             <h2>Crear Turno</h2>
 
+            {errores.length > 0 && (
+                <ul style={{ color: "red" }}>
+                    {errores.map((e, i) => (
+                        <li key={i}>{e}</li>
+                    ))}
+                </ul>
+            )}
+
             <form onSubmit={handleSubmit}>
-                <fieldset>
+                <label>Paciente</label>
+                <select
+                    name="paciente_id"
+                    value={form.paciente_id}
+                    onChange={handleChange}
+                >
+                    <option value="">Seleccione...</option>
+                    {pacientes.map((p) => (
+                        <option key={p.id} value={p.id}>
+                            {p.nombre} {p.apellido}
+                        </option>
+                    ))}
+                </select>
 
+                <label>Médico</label>
+                <select
+                    name="medico_id"
+                    value={form.medico_id}
+                    onChange={handleChange}
+                >
+                    <option value="">Seleccione...</option>
+                    {medicos.map((m) => (
+                        <option key={m.id} value={m.id}>
+                            {m.nombre} {m.apellido} ({m.especialidad})
+                        </option>
+                    ))}
+                </select>
 
-                    <label>
-                        Paciente
-                        <select
-                            required
-                            value={values.paciente_id}
-                            onChange={(e) =>
-                                setValues({ ...values, paciente_id: e.target.value })
-                            }
-                        >
-                            <option value="">Seleccionar paciente</option>
-                            {pacientes.map(p => (
-                                <option key={p.id} value={p.id}>
-                                    {p.nombre} {p.apellido} — DNI: {p.DNI}
-                                </option>
-                            ))}
-                        </select>
-                    </label>
+                <label>Fecha</label>
+                <input
+                    type="date"
+                    name="fecha"
+                    value={form.fecha}
+                    onChange={handleChange}
+                />
 
+                <label>Hora</label>
+                <input
+                    type="time"
+                    name="hora"
+                    value={form.hora}
+                    onChange={handleChange}
+                />
 
-                    <label>
-                        Médico
-                        <select
-                            required
-                            value={values.medico_id}
-                            onChange={(e) =>
-                                setValues({ ...values, medico_id: e.target.value })
-                            }
-                        >
-                            <option value="">Seleccionar médico</option>
-                            {medicos.map(m => (
-                                <option key={m.id} value={m.id}>
-                                    {m.nombre} {m.apellido} — {m.especialidad}
-                                </option>
-                            ))}
-                        </select>
-                    </label>
+                <label>Estado</label>
+                <select
+                    name="estado"
+                    value={form.estado}
+                    onChange={handleChange}
+                >
+                    <option value="pendiente">Pendiente</option>
+                    <option value="atendido">Atendido</option>
+                    <option value="cancelado">Cancelado</option>
+                </select>
 
+                <label>Observaciones</label>
+                <textarea
+                    name="observaciones"
+                    value={form.observaciones}
+                    onChange={handleChange}
+                    rows="3"
+                />
 
-                    <label>
-                        Fecha
-                        <input
-                            type="date"
-                            required
-                            value={values.fecha}
-                            onChange={(e) =>
-                                setValues({ ...values, fecha: e.target.value })
-                            }
-                        />
-                    </label>
-
-
-                    <label>
-                        Hora
-                        <input
-                            type="time"
-                            required
-                            value={values.hora}
-                            onChange={(e) =>
-                                setValues({ ...values, hora: e.target.value })
-                            }
-                        />
-                    </label>
-
-
-                    <label>
-                        Estado
-                        <select
-                            value={values.estado}
-                            onChange={(e) =>
-                                setValues({ ...values, estado: e.target.value })
-                            }
-                        >
-                            <option value="pendiente">Pendiente</option>
-                            <option value="confirmado">Confirmado</option>
-                            <option value="cancelado">Cancelado</option>
-                            <option value="atendido">Atendido</option>
-                        </select>
-                    </label>
-
-
-                    <label>
-                        Observaciones
-                        <textarea
-                            value={values.observaciones}
-                            onChange={(e) =>
-                                setValues({ ...values, observaciones: e.target.value })
-                            }
-                        />
-                    </label>
-
-                </fieldset>
-
-
-                {errores && (
-                    <article style={{ color: "red" }}>
-                        <h4>Errores:</h4>
-                        <ul>
-                            {errores.map((err, i) => (
-                                <li key={i}>{err.msg}</li>
-                            ))}
-                        </ul>
-                    </article>
-                )}
-
-                <input type="submit" value="Crear Turno" />
+                <button type="submit" disabled={loading}>
+                    {loading ? "Creando..." : "Crear"}
+                </button>
             </form>
         </article>
     );

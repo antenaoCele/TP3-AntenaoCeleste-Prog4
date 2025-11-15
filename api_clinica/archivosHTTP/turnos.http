@@ -18,20 +18,24 @@ Content-Type: application/json
 
 ### Obtener todos los turnos
 GET {{url}}/turnos
+Authorization: Bearer {{token}}
 
 ### Obtener un turno por ID
 GET {{url}}/turnos/1
+Authorization: Bearer {{token}}
 
 ### Obtener turnos de un paciente específico
 GET {{url}}/turnos/pacientes/1/turnos
+Authorization: Bearer {{token}}
 
 ### Obtener turnos de un médico específico
 GET {{url}}/turnos/medicos/1/turnos
+Authorization: Bearer {{token}}
 
 ### Crear un nuevo turno
-
 POST {{url}}/turnos
 Content-Type: application/json
+Authorization: Bearer {{token}}
 
 {
     "paciente_id": 3,
@@ -42,22 +46,11 @@ Content-Type: application/json
     "observaciones": "Control anual"
 }
 
-### Crear un turno con datos inválidos (para probar validaciones)
-POST {{url}}/turnos
-Content-Type: application/json
-
-{
-    "paciente_id": 999,
-    "medico_id": 1,
-    "fecha": "2020-01-01",
-    "hora": "99:99",
-    "estado": "cualquiercosa",
-    "observaciones": "Esto es una prueba de validación"
-}
 
 ### Actualizar un turno 
 PUT {{url}}/turnos/1
 Content-Type: application/json
+Authorization: Bearer {{token}}
 
 {
     "paciente_id": 1,
@@ -70,3 +63,4 @@ Content-Type: application/json
 
 ### Eliminar un turno
 DELETE {{url}}/turnos/2
+Authorization: Bearer {{token}}

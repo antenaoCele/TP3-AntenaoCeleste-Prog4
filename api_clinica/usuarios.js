@@ -6,10 +6,11 @@ import bcrypt from "bcrypt";
 import passport from "passport";
 
 const router = express.Router();
-router.use(passport.authenticate("jwt", { session: false }));
+router.use();
 
 router.get(
     "/",
+    passport.authenticate("jwt", { session: false }),
     async (req, res) => {
 
         const [rows] = await db.execute("SELECT * FROM usuarios");
@@ -20,29 +21,33 @@ router.get(
     }
 );
 
-router.get("/:id", validarId, verificarValidaciones, async (req, res) => {
-    const id = Number(req.params.id);
+router.get("/:id",
+    validarId,
+    verificarValidaciones,
+    passport.authenticate("jwt", { session: false }),
+    async (req, res) => {
+        const id = Number(req.params.id);
 
-    const [existe] = await db.execute("SELECT * FROM usuarios WHERE id=?", [id]);
+        const [existe] = await db.execute("SELECT * FROM usuarios WHERE id=?", [id]);
 
-    if (existe.length === 0) {
-        return res.status(404).json({ success: false, error: "Usuario no encontrado" });
-    }
+        if (existe.length === 0) {
+            return res.status(404).json({ success: false, error: "Usuario no encontrado" });
+        }
 
 
-    const [rows] = await db.execute(
-        "SELECT id, nombre, email FROM usuarios WHERE id=?",
-        [id]
-    );
+        const [rows] = await db.execute(
+            "SELECT id, nombre, email FROM usuarios WHERE id=?",
+            [id]
+        );
 
-    if (rows.length === 0) {
-        return res
-            .status(404)
-            .json({ success: false, error: "Usuario no encontrado" });
-    }
+        if (rows.length === 0) {
+            return res
+                .status(404)
+                .json({ success: false, error: "Usuario no encontrado" });
+        }
 
-    res.json({ success: true, data: rows[0] });
-});
+        res.json({ success: true, data: rows[0] });
+    });
 
 router.post(
     "/",

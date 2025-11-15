@@ -9,8 +9,6 @@ router.use(passport.authenticate("jwt", { session: false }));
 
 // ------------GET------------
 router.get('/', async (req, res) => {
-    const { nombre, apellido, DNI, nacimiento, obraSocial } = req.query;
-
 
     let sql = "SELECT * FROM pacientes";
 

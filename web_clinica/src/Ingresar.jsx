@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { useAuth } from "./Auth";
+import { Link } from "react-router-dom";
+
 
 export const Ingresar = () => {
     const { error, login, setError } = useAuth();
@@ -53,17 +55,12 @@ export const Ingresar = () => {
                         <footer>
                             <div className="grid">
                                 <input
-                                    type="button"
-                                    className="secondary"
-                                    value="Cancelar"
-                                    onClick={() => setOpen(false)}
-                                />
-                                <input
                                     type="submit"
                                     value="Ingresar"
                                     aria-busy={loading}
                                 />
                             </div>
+                            <Link to="/usuarios/crear" role="button">Registrarme</Link>
                         </footer>
                     </form>
                 </article>

@@ -68,7 +68,14 @@ export const Medicos = () => {
                                 <td>{m.matricula}</td>
                                 <td>
                                     <Link to={`/medicos/${m.id}`} role="button" className="secondary">Ver</Link>{" "}
-                                    <Link to={`/medicos/editar/${m.id}`} role="button" className="secondary">Modificar</Link>
+                                    <Link to={`/medicos/editar/${m.id}`} role="button" className="secondary">Modificar</Link>{" "}
+                                    <Link
+                                        to={`/medicos/${m.id}/turnos`}
+                                        role="button"
+                                        className="secondary"
+                                    >
+                                        Ver Turnos
+                                    </Link>
                                     {" "}
                                     <button
                                         onClick={() => handleEliminar(m.id)}

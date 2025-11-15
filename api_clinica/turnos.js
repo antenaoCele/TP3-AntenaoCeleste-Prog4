@@ -3,7 +3,7 @@ import { db } from "./db.js";
 import { body, query } from "express-validator";
 import { validarId, verificarValidaciones, validarTurnos } from "./validaciones.js";
 const router = express.Router();
-
+router.use(passport.authenticate("jwt", { session: false }));
 
 // ------------GET------------
 router.get('/', async (req, res) => {
@@ -105,7 +105,7 @@ router.put(
 
         await db.execute(
             "UPDATE turnos SET paciente_id=?, medico_id=?, fecha=?, hora=?, estado=?, observaciones=? WHERE id=?",
-            [paciente_id, medico_id, fecha, hora, estado, observaciones, id]
+            [paciente_id, medico_id, fecha, hora, estado, observaciones ?? null, id]
         );
 
         res.json({

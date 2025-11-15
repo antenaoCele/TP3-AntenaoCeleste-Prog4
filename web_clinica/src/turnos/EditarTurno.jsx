@@ -1,71 +1,122 @@
-import { useEffect, useState, useCallback } from "react";
-import { useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../Auth";
 
 export const EditarTurno = () => {
     const { id } = useParams();
     const { fetchAuth } = useAuth();
+    const navigate = useNavigate();
 
-    const [turno, setTurno] = useState(null);
     const [pacientes, setPacientes] = useState([]);
     const [medicos, setMedicos] = useState([]);
+    const [loading, setLoading] = useState(false);
     const [errores, setErrores] = useState([]);
 
-    // ---- Obtener turno ----
-    const fetchTurno = useCallback(async () => {
-        const response = await fetchAuth(`http://localhost:4000/turnos/${id}`);
-        const data = await response.json();
+    const [form, setForm] = useState({
+        paciente_id: "",
+        medico_id: "",
+        fecha: "",
+        hora: "",
+        estado: "pendiente",
+        observaciones: ""
+    });
 
-        if (!response.ok || !data.success) {
-            setErrores(data.errors || [data.message]);
-            return;
-        }
+    // Cargar turno y listas al montar
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                // Obtener turno, pacientes y médicos en paralelo
+                const [resTurno, resPac, resMed] = await Promise.all([
+                    fetchAuth(`http://localhost:4000/turnos/${id}`),
+                    fetchAuth("http://localhost:4000/pacientes"),
+                    fetchAuth("http://localhost:4000/medicos")
+                ]);
 
-        const turnoData = data.data;
-        turnoData.fecha = turnoData.fecha.split("T")[0];
-        setTurno(turnoData);
+                const turnoData = await resTurno.json();
+                const pacData = await resPac.json();
+                const medData = await resMed.json();
 
+                // Validar turno
+                if (!resTurno.ok || !turnoData.success) {
+                    setErrores([turnoData.message || "Error al cargar el turno"]);
+                    return;
+                }
+
+                // Cargar datos del turno en el formulario
+                const turno = turnoData.data;
+                setForm({
+                    paciente_id: turno.paciente_id,
+                    medico_id: turno.medico_id,
+                    fecha: turno.fecha.split("T")[0], // Formatear fecha
+                    hora: turno.hora,
+                    estado: turno.estado,
+                    observaciones: turno.observaciones || ""
+                });
+
+                // Cargar listas
+                if (pacData.success) setPacientes(pacData.data);
+                if (medData.success) setMedicos(medData.data);
+
+            } catch (err) {
+                console.error("Error al cargar datos:", err);
+                setErrores(["Error de red al cargar los datos"]);
+            }
+        };
+
+        fetchData();
     }, [fetchAuth, id]);
 
-    // ---- Obtener listas ----
-    const fetchListas = useCallback(async () => {
-        const resPac = await fetchAuth("http://localhost:4000/pacientes");
-        const dataPac = await resPac.json();
-        setPacientes(dataPac.data || []);
-
-        const resMed = await fetchAuth("http://localhost:4000/medicos");
-        const dataMed = await resMed.json();
-        setMedicos(dataMed.data || []);
-    }, [fetchAuth]);
-
-    useEffect(() => {
-        fetchTurno();
-        fetchListas();
-    }, [fetchTurno, fetchListas]);
-
-    // ---- Actualizar turno ----
-    const actualizar = async () => {
-        setErrores([]);
-
-        const response = await fetchAuth(`http://localhost:4000/turnos/${id}`, {
-            method: "PUT",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(turno),
-        });
-
-        const data = await response.json();
-
-        if (!response.ok || !data.success) {
-            setErrores(data.errors || [data.message]);
-            return;
-        }
-
-        alert("Turno actualizado con éxito");
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setForm((prev) => ({ ...prev, [name]: value }));
     };
 
-    if (!turno) return <p>Cargando...</p>;
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setErrores([]);
+        setLoading(true);
+
+        try {
+            const body = {
+                paciente_id: Number(form.paciente_id),
+                medico_id: Number(form.medico_id),
+                fecha: form.fecha,
+                hora: form.hora,
+                estado: form.estado,
+                observaciones: form.observaciones ? String(form.observaciones) : ""
+            };
+
+            const response = await fetchAuth(`http://localhost:4000/turnos/${id}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(body),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                if (data.errores) {
+                    setErrores(data.errores.map(e => e.msg));
+                } else {
+                    setErrores([data.message || data.error || "Error al actualizar turno"]);
+                }
+                setLoading(false);
+                return;
+            }
+
+            // Redirigir a la lista de turnos después de actualizar
+            navigate("/turnos");
+        } catch (err) {
+            console.error(err);
+            setErrores(["Error de red al actualizar turno"]);
+            setLoading(false);
+        }
+    };
+
+    // Mostrar loading mientras carga el turno
+    if (!form.paciente_id && errores.length === 0) {
+        return <p>Cargando...</p>;
+    }
 
     return (
         <article>
@@ -79,84 +130,79 @@ export const EditarTurno = () => {
                 </ul>
             )}
 
-            {/* Paciente */}
-            <label><b>Paciente</b></label>
-            <select
-                value={turno.paciente_id}
-                onChange={(e) =>
-                    setTurno({ ...turno, paciente_id: Number(e.target.value) })
-                }
-            >
-                <option value="">Seleccione paciente</option>
-                {pacientes.map((p) => (
-                    <option key={p.id} value={p.id}>
-                        {p.nombre} {p.apellido}
-                    </option>
-                ))}
-            </select>
+            <form onSubmit={handleSubmit}>
+                <label>Paciente</label>
+                <select
+                    name="paciente_id"
+                    value={form.paciente_id}
+                    onChange={handleChange}
+                    required
+                >
+                    <option value="">Seleccione...</option>
+                    {pacientes.map((p) => (
+                        <option key={p.id} value={p.id}>
+                            {p.nombre} {p.apellido}
+                        </option>
+                    ))}
+                </select>
 
-            <br />
+                <label>Médico</label>
+                <select
+                    name="medico_id"
+                    value={form.medico_id}
+                    onChange={handleChange}
+                    required
+                >
+                    <option value="">Seleccione...</option>
+                    {medicos.map((m) => (
+                        <option key={m.id} value={m.id}>
+                            {m.nombre} {m.apellido} ({m.especialidad})
+                        </option>
+                    ))}
+                </select>
 
-            {/* Médico */}
-            <label><b>Médico</b></label>
-            <select
-                value={turno.medico_id}
-                onChange={(e) =>
-                    setTurno({ ...turno, medico_id: Number(e.target.value) })
-                }
-            >
-                <option value="">Seleccione médico</option>
-                {medicos.map((m) => (
-                    <option key={m.id} value={m.id}>
-                        {m.nombre} {m.apellido} – {m.especialidad}
-                    </option>
-                ))}
-            </select>
+                <label>Fecha</label>
+                <input
+                    type="date"
+                    name="fecha"
+                    value={form.fecha}
+                    onChange={handleChange}
+                    required
+                />
 
-            <br />
+                <label>Hora</label>
+                <input
+                    type="time"
+                    name="hora"
+                    value={form.hora}
+                    onChange={handleChange}
+                    required
+                />
 
-            {/* Fecha */}
-            <label><b>Fecha:</b></label>
-            <input
-                type="date"
-                value={turno.fecha}
-                onChange={(e) => setTurno({ ...turno, fecha: e.target.value })}
-            />
+                <label>Estado</label>
+                <select
+                    name="estado"
+                    value={form.estado}
+                    onChange={handleChange}
+                    required
+                >
+                    <option value="pendiente">Pendiente</option>
+                    <option value="atendido">Atendido</option>
+                    <option value="cancelado">Cancelado</option>
+                </select>
 
-            <br />
+                <label>Observaciones</label>
+                <textarea
+                    name="observaciones"
+                    value={form.observaciones}
+                    onChange={handleChange}
+                    rows="3"
+                />
 
-            {/* Hora */}
-            <label><b>Hora:</b></label>
-            <input
-                type="time"
-                value={turno.hora}
-                onChange={(e) => setTurno({ ...turno, hora: e.target.value })}
-            />
-
-            <br />
-
-            {/* Estado */}
-            <label><b>Estado:</b></label>
-            <input
-                type="text"
-                value={turno.estado}
-                onChange={(e) => setTurno({ ...turno, estado: e.target.value })}
-            />
-
-            <br />
-
-            {/* Observaciones */}
-            <label><b>Observaciones:</b></label>
-            <textarea
-                value={turno.observaciones || ""}
-                onChange={(e) =>
-                    setTurno({ ...turno, observaciones: e.target.value })
-                }
-            />
-
-            <br /><br />
-
-            <button onClick={actualizar}>Actualizar</button>
+                <button type="submit" disabled={loading}>
+                    {loading ? "Actualizando..." : "Actualizar"}
+                </button>
+            </form>
         </article>
     );
 };

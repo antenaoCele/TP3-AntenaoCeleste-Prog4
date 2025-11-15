@@ -179,7 +179,6 @@ export const validarTurnos = [
 
     body("fecha")
         .notEmpty().withMessage("La fecha es obligatoria.")
-        .isISO8601().withMessage("La fecha debe tener un formato válido (YYYY-MM-DD).")
         .custom((value) => {
             const fechaTurno = new Date(value);
             const hoy = new Date();
@@ -192,17 +191,24 @@ export const validarTurnos = [
 
     body("hora")
         .notEmpty().withMessage("La hora es obligatoria.")
-        .matches(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/).withMessage("La hora debe tener un formato válido (HH:MM).")
+        .matches(/^\d{2}:\d{2}$/).withMessage("Formato de hora inválido (HH:MM).")
         .custom(async (value, { req }) => {
             const { medico_id, fecha } = req.body;
             const turnoId = req.params.id;
 
             if (!medico_id || !fecha) return true;
 
-            const [existe] = await db.execute(
-                "SELECT * FROM turnos WHERE medico_id = ? AND fecha = ? AND hora = ? AND id != ?",
-                [medico_id, fecha, value, turnoId]
-            );
+            let query, params;
+
+            if (turnoId) {
+                query = "SELECT * FROM turnos WHERE medico_id = ? AND fecha = ? AND hora = ? AND id != ?";
+                params = [medico_id, fecha, value, turnoId];
+            } else {
+                query = "SELECT * FROM turnos WHERE medico_id = ? AND fecha = ? AND hora = ?";
+                params = [medico_id, fecha, value];
+            }
+
+            const [existe] = await db.execute(query, params);
 
             if (existe.length > 0) {
                 throw new Error("El médico ya tiene un turno en ese horario.");
@@ -210,6 +216,7 @@ export const validarTurnos = [
 
             return true;
         }),
+
 
     body("estado")
         .isString().withMessage("El estado debe ser una cadena de texto.")
