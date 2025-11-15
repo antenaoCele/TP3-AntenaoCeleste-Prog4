@@ -7,6 +7,7 @@ import { Usuarios } from './usuarios/Usuarios.jsx'
 import { DetallesUsuarios } from "./usuarios/DetallesUsuario.jsx";
 import { CrearUsuario } from "./usuarios/CrearUsuario.jsx";
 import { ModificarUsuarios } from "./usuarios/ModificarUsuarios.jsx";
+import { RegistroPublico } from "./usuarios/RegistroPublico.jsx";
 import { CrearPaciente } from "./pacientes/CrearPaciente.jsx";
 import { DetallesPaciente } from "./pacientes/DetallesPaciente.jsx";
 import { EditarPaciente } from "./pacientes/EditarPaciente.jsx";
@@ -65,6 +66,12 @@ createRoot(document.getElementById('root')).render(
                 <AuthPage>
                   <CrearUsuario />
                 </AuthPage>
+              }
+            />
+            <Route
+              path="usuarios/registrar"
+              element={
+                <RegistroPublico />
               }
             />
 

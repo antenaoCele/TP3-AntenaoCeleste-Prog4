@@ -25,7 +25,6 @@ Authorization: Bearer {{token}}
 ### Crear usuario
 POST {{url}}/usuarios
 Content-Type: application/json
-Authorization: Bearer {{token}}
 
 {
     "nombre":"Celeste",

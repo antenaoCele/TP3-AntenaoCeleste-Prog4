@@ -6,7 +6,6 @@ import bcrypt from "bcrypt";
 import passport from "passport";
 
 const router = express.Router();
-router.use();
 
 router.get(
     "/",

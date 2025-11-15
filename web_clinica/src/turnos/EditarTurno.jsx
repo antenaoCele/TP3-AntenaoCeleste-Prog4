@@ -21,11 +21,10 @@ export const EditarTurno = () => {
         observaciones: ""
     });
 
-    // Cargar turno y listas al montar
     useEffect(() => {
         const fetchData = async () => {
             try {
-                // Obtener turno, pacientes y médicos en paralelo
+
                 const [resTurno, resPac, resMed] = await Promise.all([
                     fetchAuth(`http://localhost:4000/turnos/${id}`),
                     fetchAuth("http://localhost:4000/pacientes"),
@@ -36,18 +35,18 @@ export const EditarTurno = () => {
                 const pacData = await resPac.json();
                 const medData = await resMed.json();
 
-                // Validar turno
+
                 if (!resTurno.ok || !turnoData.success) {
                     setErrores([turnoData.message || "Error al cargar el turno"]);
                     return;
                 }
 
-                // Cargar datos del turno en el formulario
+
                 const turno = turnoData.data;
                 setForm({
                     paciente_id: turno.paciente_id,
                     medico_id: turno.medico_id,
-                    fecha: turno.fecha.split("T")[0], // Formatear fecha
+                    fecha: turno.fecha.split("T")[0],
                     hora: turno.hora,
                     estado: turno.estado,
                     observaciones: turno.observaciones || ""
@@ -104,7 +103,7 @@ export const EditarTurno = () => {
                 return;
             }
 
-            // Redirigir a la lista de turnos después de actualizar
+
             navigate("/turnos");
         } catch (err) {
             console.error(err);
@@ -113,7 +112,7 @@ export const EditarTurno = () => {
         }
     };
 
-    // Mostrar loading mientras carga el turno
+
     if (!form.paciente_id && errores.length === 0) {
         return <p>Cargando...</p>;
     }

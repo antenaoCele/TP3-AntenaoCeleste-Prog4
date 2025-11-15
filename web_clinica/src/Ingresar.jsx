@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useAuth } from "./Auth";
-import { Link } from "react-router-dom";
 
 
 export const Ingresar = () => {
@@ -60,7 +59,6 @@ export const Ingresar = () => {
                                     aria-busy={loading}
                                 />
                             </div>
-                            <Link to="/usuarios/crear" role="button">Registrarme</Link>
                         </footer>
                     </form>
                 </article>

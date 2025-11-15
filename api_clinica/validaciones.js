@@ -26,13 +26,32 @@ export const validarAuth = [
 //-------------------------VALIDACION PARA USUARIOS-------------------------
 export const validarUsuario = [
     body("nombre")
-        .trim()
         .notEmpty().withMessage("El nombre es obligatorio.")
-        .isLength({ max: 50 }).withMessage("El nombre debe tener menos de 50 caracteres."),
+        .isLength({ min: 3 }).withMessage("El nombre debe tener al menos 3 caracteres.")
+        .custom(async (value) => {
+            const [rows] = await db.execute(
+                "SELECT * FROM usuarios WHERE nombre = ?",
+                [value]
+            );
+            if (rows.length > 0) {
+                throw new Error("El nombre de usuario ya existe.");
+            }
+            return true;
+        }),
+
     body("email")
-        .trim()
         .notEmpty().withMessage("El email es obligatorio.")
-        .isEmail().withMessage("Debe ser un email válido."),
+        .isEmail().withMessage("Formato de email inválido.")
+        .custom(async (value) => {
+            const [rows] = await db.execute(
+                "SELECT * FROM usuarios WHERE email = ?",
+                [value]
+            );
+            if (rows.length > 0) {
+                throw new Error("El email ya está registrado.");
+            }
+            return true;
+        }),
     body("password")
         .notEmpty().withMessage("La contraseña es obligatoria.")
         .isStrongPassword({

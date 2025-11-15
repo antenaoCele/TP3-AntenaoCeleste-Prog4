@@ -2,6 +2,7 @@ import express from "express";
 import { db } from "./db.js";
 import { body, query } from "express-validator";
 import { validarId, verificarValidaciones, validarTurnos } from "./validaciones.js";
+import passport from "passport";
 const router = express.Router();
 router.use(passport.authenticate("jwt", { session: false }));
 
@@ -25,7 +26,16 @@ router.get('/', async (req, res) => {
 //get turnos de un paciente
 router.get('/pacientes/:id/turnos', validarId, verificarValidaciones, async (req, res) => {
     const { id } = req.params;
-    const [rows] = await db.execute("SELECT * FROM turnos WHERE paciente_id = ?", [id]);
+    const sql = `
+        SELECT 
+            t.*, 
+            m.nombre as medico_nombre, m.apellido as medico_apellido,
+            p.nombre as paciente_nombre, p.apellido as paciente_apellido
+        FROM turnos t
+        JOIN medicos m ON t.medico_id = m.id
+        JOIN pacientes p ON t.paciente_id = p.id
+        WHERE t.paciente_id = ?`;
+    const [rows] = await db.execute(sql, [id]);
     if (rows.length === 0) {
         return res.status(404).json({ success: false, message: "El paciente no tiene turnos o no existe." });
     }
@@ -36,7 +46,16 @@ router.get('/pacientes/:id/turnos', validarId, verificarValidaciones, async (req
 //get turnos de medico
 router.get('/medicos/:id/turnos', validarId, verificarValidaciones, async (req, res) => {
     const { id } = req.params;
-    const [rows] = await db.execute("SELECT * FROM turnos WHERE medico_id = ?", [id]);
+    const sql = `
+        SELECT 
+            t.*, 
+            p.nombre as paciente_nombre, p.apellido as paciente_apellido,
+            m.nombre as medico_nombre, m.apellido as medico_apellido
+        FROM turnos t
+        JOIN pacientes p ON t.paciente_id = p.id
+        JOIN medicos m ON t.medico_id = m.id
+        WHERE t.medico_id = ?`;
+    const [rows] = await db.execute(sql, [id]);
     if (rows.length === 0) {
         return res.status(404).json({ success: false, message: "El médico no tiene turnos o no existe." });
     }

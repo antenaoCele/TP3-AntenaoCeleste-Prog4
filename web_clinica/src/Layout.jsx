@@ -24,6 +24,10 @@ export const Layout = () => {
                     <li>
                         <Link to="/turnos">Turnos</Link>
                     </li>
+                    <li>
+                        <Link to="/usuarios/registrar">Registrarse</Link>
+                    </li>
+
                 </ul>
                 <li>
                     {isAuthenticated ? (
